@@ -1,0 +1,50 @@
+<div class="outer-container" >
+    <div class="github-search-bar">
+        <input placeholder="Entrez le nom d'utilisateur GitHub" class="custom-input" [(ngModel)]="username">
+        <button class="custom-button" (click)="getUserProfile()">Rechercher</button>
+    </div>
+
+    <app-loader-component
+    [shouldLoad]="isUserLoading"
+    >
+    </app-loader-component>
+
+  <div class="profile-page-container" *ngIf="showResult">
+        <app-profile-page
+        [avatar_url]="userProfile.avatar_url"
+        [name]="userProfile.name"
+        [bio]="userProfile.bio"
+        [location]="userProfile.location"
+        [twitter_username]="userProfile.twitter_username"
+        [html_url]="userProfile.html_url"
+        >
+        </app-profile-page>
+
+        <app-loader-component
+        [shouldLoad]="isReopLoading"
+        >
+        </app-loader-component>
+
+        <h1 class="not-found-text" *ngIf="userRepoCount === 0">404: L'utilisateur n'a pas de dépôts</h1>
+
+        <div *ngIf="!isReopLoading" class="repo-container">
+            <app-repo-container
+            *ngFor="let repo of userRepo; let i = index"
+            [name]="userRepo[i].name"
+            [description]="userRepo[i].description"
+            [topics]="userRepo[i].topics"
+            [repourl]="userRepo[i].html_url"
+            >
+            </app-repo-container>
+        </div>
+
+        <div *ngIf="!isReopLoading" class="current-page-container">
+            <div class="page-bar" *ngIf="userRepoCount !== 0">
+                <button class="active-button-text" [ngStyle]="{backgroundColor: currentpage-1 > 0 ? 'black' : 'gray'}" [disabled]="!(currentpage-1 > 0) " (click)="getRepoOfPage(currentpage-1)">Précédent</button>
+                <button *ngFor="let value of repoPageArray" [ngClass]="{'active-button': value === currentpage, 'inactive-button': value !== currentpage}" (click)="getRepoOfPage(value)">{{ value }}</button>
+                <button class="active-button-text" [ngStyle]="{backgroundColor: currentpage+1 > (userProfile.public_repos/10 + (userProfile.public_repos % 10 > 0 ? 1 : 0)) ? 'gray' : 'black'}" [disabled]="(currentpage+1 > (userProfile.public_repos/10 + (userProfile.public_repos % 10 > 0 ? 1 : 0)))" (click)="getRepoOfPage(currentpage+1)">Suivant</button>
+            </div>
+        </div>
+  </div>
+  <h1 class="not-found-text" *ngIf="showError">404:Utilisateur non trouvé</h1>
+</div>
